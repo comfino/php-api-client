@@ -1,0 +1,26 @@
+services:
+    php-api-client:
+        build:
+            context: ./
+            dockerfile: config/docker/Dockerfile
+        working_dir: /php-api-client
+        tty: true
+        volumes:
+            - ./:/php-api-client
+            - ~/.composer:/home/comfino/.composer
+
+    php-api-client-coverage:
+        build:
+            context: ./
+            dockerfile: config/docker/Dockerfile
+            args:
+                WITH_XDEBUG: "true"
+        working_dir: /php-api-client
+        tty: true
+        environment:
+            XDEBUG_MODE: coverage
+        volumes:
+            - ./:/php-api-client
+            - ~/.composer:/home/comfino/.composer
+        profiles:
+            - coverage
