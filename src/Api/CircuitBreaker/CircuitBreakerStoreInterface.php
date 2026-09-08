@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * ComfinoPay PHP API client
+ *
+ * Backend routines for communication with the ComfinoPay payment gateway REST API.
+ *
+ * @package Comfino\Api\CircuitBreaker
+ * @author Artur Kozubski <a.kozubski@artkosoft.pl>
+ * @copyright Copyright (c) 2026 by ComfinoPay sp. z o.o.
+ * @license https://opensource.org/licenses/BSD-3-Clause BSD 3-Clause License
+ * @link https://github.com/comfino/php-api-client
+ */
+
+declare(strict_types=1);
+
+namespace Comfino\Api\CircuitBreaker;
+
+/**
+ * Where a {@see CircuitBreaker} keeps its per-key state.
+ *
+ * Separate from the breaker so the policy lives in one place and the storage matches the deployment: an APCu or
+ * per-request array store for a plugin, a shared Redis or database store for a connector whose workers must agree on
+ * whether a host is down.
+ *
+ * A shared store built on this interface alone works, with one caveat worth accepting deliberately: the half-open
+ * probe is claimed by every worker at once rather than by one, so a down host gets a fleet-sized burst per open
+ * window. {@see AtomicCircuitBreakerStoreInterface} fixes that, and {@see CircuitBreaker::isExact()} reports which
+ * behavior is in effect.
+ */
+interface CircuitBreakerStoreInterface
+{
+    /**
+     * Returns the stored state for the key or null when nothing is recorded.
+     *
+     * @param string $key Breaker key
+     */
+    public function get(string $key): ?CircuitBreakerState;
+
+    /**
+     * Stores the state for the key.
+     *
+     * @param string $key Breaker key
+     * @param CircuitBreakerState $state State to store
+     */
+    public function set(string $key, CircuitBreakerState $state): void;
+
+    /**
+     * Removes any stored state for the key.
+     *
+     * @param string $key Breaker key
+     */
+    public function delete(string $key): void;
+}
