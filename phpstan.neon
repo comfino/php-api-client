@@ -1,0 +1,18 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+        - tests
+    phpVersion: 80100
+    ignoreErrors:
+        # Response subclasses initialize readonly properties in processResponseBody(), which is always
+        # called from Base::__construct() via initFromPsrResponse(). PHPStan cannot trace this chain.
+        -
+            identifier: property.uninitializedReadonly
+            path: src/Api/Response
+        -
+            identifier: property.readOnlyAssignNotInConstructor
+            path: src/Api/Response
